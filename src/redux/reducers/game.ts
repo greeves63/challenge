@@ -3,7 +3,7 @@ import { InitializeGame } from '../../lib/Game';
 import { GameBoardItemType, GameMode } from '../../lib/Map';
 
 /** Holds initial state */
-const initialState:GameState = {...InitializeGame(), runningScore: 0, iteration: 0};
+const initialState:GameState = {...InitializeGame(), runningScore: 0, iteration: 0, testMode: false};
 
 const gameReducer = (state:GameState = initialState, action: ReduxAction): GameState => {
   const { items, GhostStore, PacmanStore, pillTimer} = state;
@@ -26,9 +26,15 @@ const gameReducer = (state:GameState = initialState, action: ReduxAction): GameS
     case ActionTypes.SET_ITEMS:
       return {...state, ...action.payload };
 
+    case ActionTypes.TOGGLE_TEST_MODE:
+      // Start game when we enter test mode, and stop the current game when we leave it.
+      return {...state, testMode: !state.testMode, mode: !state.testMode ? GameMode.PLAYING : GameMode.FINISHED };
+    
     case ActionTypes.TIC:
 
       if (mode === GameMode.PLAYING) {
+
+        const { testMode } = state;
 
         turn += 1;
 
@@ -67,6 +73,14 @@ const gameReducer = (state:GameState = initialState, action: ReduxAction): GameS
 
         // Decrement Pill counter
         if (pillTimer.timer > 0) pillTimer.timer -= 1;
+
+        // If we hit 100 moves in test mode, kill the current game and start a new one.
+        if (testMode && mode === GameMode.FINISHED && (iteration || 0) < 10) {
+          // Restart game.
+          runningScore += PacmanStore.score;
+          iteration = (iteration || 0) + 1;
+          return {...InitializeGame(), runningScore, iteration, testMode};
+        }
 
       }
       return {...state, items, mode, turn };

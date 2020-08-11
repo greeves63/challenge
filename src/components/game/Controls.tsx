@@ -3,12 +3,13 @@ import Button from '@material-ui/core/Button';
 import { Typography } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import store from '../../redux/store';
-import { initGame, resetScore } from '../../redux/actions';
+import { initGame, resetScore, toggleTestMode} from '../../redux/actions';
 
 interface ControlProps {
   score?: number;
   iteration?: number;
   runningScore?: number;
+  testmode?: boolean;
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -22,7 +23,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const Controls: React.FC<ControlProps> = ({score, iteration, runningScore}): JSX.Element => {
+const Controls: React.FC<ControlProps> = ({score, iteration, runningScore, testMode}): JSX.Element => {
   
   const styles = useStyles({});
 
@@ -32,6 +33,10 @@ const Controls: React.FC<ControlProps> = ({score, iteration, runningScore}): JSX
 
   const handleResetScore = ():void => {
     store.dispatch(resetScore());
+  };
+
+  const handleTestRun = (): void => {
+    store.dispatch(toggleTestMode());
   };
 
   return (
@@ -56,6 +61,7 @@ const Controls: React.FC<ControlProps> = ({score, iteration, runningScore}): JSX
 
       <Button onClick={handleNewGame} className={styles.button} fullWidth color="primary" variant="contained">New Game</Button>
       <Button onClick={handleResetScore} className={styles.button} fullWidth variant="contained">Reset Score</Button>
+      <Button onClick={handleTestRun} className={styles.button} fullWidth color="secondary" variant="contained">{ testMode ? 'Running Tests...' : 'Run iterations'}</Button>
     </>
   );
 };
